@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import load_only
 import random
+import collections
 
 from models import Base, Order, Log
 engine = create_engine('sqlite:///orders.db')
@@ -69,7 +70,6 @@ def trade():
                 log_message(content)
                 return jsonify( False )
         
-        error = False
         for column in columns:
             if not column in content['payload'].keys():
                 print( f"{column} not received by Trade" )
@@ -124,12 +124,10 @@ def order_book():
     #Note that you can access the database session using g.session
     result = {}
     orders = g.session.execute('SELECT * FROM orders')
-    order_data = {}
     order_array = []
 
-    counter = 0
-
     for order in orders:
+        order_data = collections.OrderedDict()
         order_data['sender_pk'] = order.sender_pk
         order_data['receiver_pk'] = order.receiver_pk
         order_data['buy_currency'] = order.buy_currency
@@ -138,11 +136,10 @@ def order_book():
         order_data['sell_amount'] = order.sell_amount
         order_data['signature'] = order.signature
         order_array.append(order_data)
-        counter+=1
 
-    result['data'] = order_array 
-    print(counter)   
+    result['data'] = order_array   
     return jsonify(result)
+
 
 @app.route('/log')
 def logs():
