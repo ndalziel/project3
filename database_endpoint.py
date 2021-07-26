@@ -15,6 +15,7 @@ engine = create_engine('sqlite:///orders.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
+
 app = Flask(__name__)
 
 #These decorators allow you to use g.session to access the database inside the request code
@@ -45,6 +46,8 @@ class DataStore():
     platform = None
 
 data = DataStore()
+
+
 
 
 """
@@ -106,6 +109,7 @@ def trade():
 
             order = content['payload']
             del order['platform']
+            order['signature']=content['sig']
             new_order = Order(**order)
             g.session.add(new_order)    
             g.session.commit()
@@ -123,6 +127,8 @@ def order_book():
     order_data = {}
     order_array = []
 
+    counter = 0
+
     for order in orders:
         order_data['sender_pk'] = order.sender_pk
         order_data['receiver_pk'] = order.receiver_pk
@@ -132,8 +138,10 @@ def order_book():
         order_data['sell_amount'] = order.sell_amount
         order_data['signature'] = order.signature
         order_array.append(order_data)
+        counter+=1
 
-    result['data'] = order_array    
+    result['data'] = order_array 
+    print(counter)   
     return jsonify(result)
 
 @app.route('/log')
