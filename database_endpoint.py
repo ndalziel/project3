@@ -86,14 +86,14 @@ def trade():
             eth_encoded_msg = eth_account.messages.encode_defunct(text=data.payload)
 
             if eth_account.Account.recover_message(eth_encoded_msg,signature=data.sig) == data.pk:
-                error = False
+                pass
             else:
                 error = True
 
         elif data.platform  == "Algorand":
 
             if algosdk.util.verify_bytes(data.payload.encode('utf-8'),data.sig, data.pk):
-                error = False
+                pass
             else:
                 error = True
 
